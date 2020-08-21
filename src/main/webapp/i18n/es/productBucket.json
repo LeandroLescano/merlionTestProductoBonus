@@ -1,0 +1,25 @@
+{
+  "testApp": {
+    "productBucket": {
+      "home": {
+        "title": "Product Buckets",
+        "createLabel": "Crear nuevo Product Bucket",
+        "createOrEditLabel": "Crear o editar Product Bucket",
+        "notFound": "Ningún Product Buckets encontrado"
+      },
+      "created": "Un nuevo Product Bucket ha sido creado con el identificador {{ param }}",
+      "updated": "Un Product Bucket ha sido actualizado con el identificador {{ param }}",
+      "deleted": "Un Product Bucket ha sido eliminado con el identificador {{ param }}",
+      "delete": {
+        "question": "¿Seguro que quiere eliminar Product Bucket {{ id }}?"
+      },
+      "detail": {
+        "title": "Product Bucket"
+      },
+      "availableToSellQuantity": "Available To Sell Quantity",
+      "inChargeQuantity": "In Charge Quantity",
+      "brokenQuantity": "Broken Quantity",
+      "product": "Product"
+    }
+  }
+}
