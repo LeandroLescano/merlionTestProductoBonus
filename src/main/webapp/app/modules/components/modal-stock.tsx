@@ -13,6 +13,7 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import './modal-stock.scss';
+import axios from 'axios';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -90,6 +91,30 @@ function ModalStock(props) {
     props.onClose();
   };
 
+  const handleUpdate = () => {
+    let token = '';
+    axios({ url: window.location.href + 'api/authenticate' })
+      .then(response => (token = response.config.headers.Authorization))
+      .catch(error => console.error(error));
+    const apiUrl = window.location.href + 'api/product-buckets';
+    axios({
+      url: apiUrl,
+      method: 'PUT',
+      headers: {
+        accept: '*/*',
+        Authorization: token,
+      },
+      data: localProduct,
+    })
+      .then(() => {
+        props.updateTable(localProduct);
+        handleClose();
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
   const handleMove = () => {
     const productUpdate = { ...localProduct };
     let error = false;
@@ -97,7 +122,7 @@ function ModalStock(props) {
     let errorMsgFrom = '';
     const quantity = parseInt((document.getElementById('quantity-prod') as HTMLInputElement).value, 10);
     if (stateFrom !== null && stateTo !== null && quantity > 0) {
-      if (quantity < productUpdate[stateFrom.cod]) {
+      if (quantity <= productUpdate[stateFrom.cod]) {
         switch (stateTo.cod) {
           case 'availableToSellQuantity': {
             if (productUpdate[stateTo.cod] + quantity > 10) {
@@ -130,6 +155,7 @@ function ModalStock(props) {
         productUpdate[stateTo.cod] += quantity;
         setLocalProduct(productUpdate);
         setErrorMessage('');
+        setErrorMessageFrom('');
       } else {
         setErrorMessageFrom(errorMsgFrom);
         setErrorMessage(errorMsg);
@@ -141,13 +167,15 @@ function ModalStock(props) {
     if (props.show) {
       setOpen(true);
       setLocalProduct(props.product);
+    } else {
+      setOpen(false);
     }
   }, [props]);
 
   return (
     <>
       {localProduct !== undefined && (
-        <Dialog fullWidth={true} maxWidth="md" onClose={handleClose} aria-labelledby="stock-modal" open={open}>
+        <Dialog disableBackdropClick={true} fullWidth={true} maxWidth="md" onClose={handleClose} aria-labelledby="stock-modal" open={open}>
           <DialogTitle id="stock-modal" onClose={handleClose}>
             {localProduct.product.id + ' - ' + localProduct.product.name}
           </DialogTitle>
@@ -242,7 +270,7 @@ function ModalStock(props) {
             <Button autoFocus onClick={handleClose} color="primary">
               Cancelar
             </Button>
-            <Button autoFocus onClick={handleClose} color="primary">
+            <Button autoFocus onClick={() => handleUpdate()} className={props.styles.button}>
               Guardar
             </Button>
           </DialogActions>

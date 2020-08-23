@@ -16,6 +16,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Container from '@material-ui/core/Container';
 import ModalStock from '../components/modal-stock';
+import AlertSuccess from '../components/alert-success';
 
 import { IRootState } from 'app/shared/reducers';
 
@@ -26,6 +27,8 @@ export const Home = (props: IHomeProp) => {
   const [productList, setProductList] = useState([]);
   const [actualProduct, setActualProduct] = useState({});
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [alertShow, setAlertShow] = useState<boolean>(false);
+  const [alertMsg, setAlertMsg] = useState<string>('');
 
   useEffect(() => {
     let mounted = true;
@@ -82,6 +85,16 @@ export const Home = (props: IHomeProp) => {
     setShowModal(false);
   };
 
+  const handleUpdate = prodUpdate => {
+    //  Update local product list
+    const index = productList.map(p => p.id).indexOf(prodUpdate.id);
+    const list = [...productList];
+    list[index] = prodUpdate;
+    setProductList(list);
+    setAlertShow(true);
+    setAlertMsg('Stock del producto ' + prodUpdate.product.name + ' actualizado!');
+  };
+
   return (
     <Container>
       {account && account.login ? (
@@ -126,7 +139,14 @@ export const Home = (props: IHomeProp) => {
               </TableBody>
             </Table>
           </Paper>
-          <ModalStock styles={styles} show={showModal} product={actualProduct} onClose={() => handleClose()} />
+          <ModalStock
+            styles={styles}
+            show={showModal}
+            product={actualProduct}
+            onClose={() => handleClose()}
+            updateTable={prod => handleUpdate(prod)}
+          />
+          <AlertSuccess show={alertShow} message={alertMsg} close={() => setAlertShow(false)} />
         </>
       ) : (
         <div>
