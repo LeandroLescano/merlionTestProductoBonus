@@ -15,6 +15,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Container from '@material-ui/core/Container';
+import ModalStock from '../components/modal-stock';
 
 import { IRootState } from 'app/shared/reducers';
 
@@ -23,6 +24,8 @@ export type IHomeProp = StateProps;
 export const Home = (props: IHomeProp) => {
   const { account } = props;
   const [productList, setProductList] = useState([]);
+  const [actualProduct, setActualProduct] = useState({});
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
     let mounted = true;
@@ -70,51 +73,61 @@ export const Home = (props: IHomeProp) => {
 
   const styles = useStyles(props);
 
-  const showModal = product => {};
+  const handleClick = product => {
+    setActualProduct(product);
+    setShowModal(true);
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
+  };
 
   return (
     <Container>
       {account && account.login ? (
-        <Paper>
-          <Table>
-            <TableHead>
-              <TableRow className={styles.tableHeader}>
-                <TableCell align="center" className={styles.tableCell}>
-                  Código
-                </TableCell>
-                <TableCell className={styles.tableCell}>Producto</TableCell>
-                <TableCell align="center" className={styles.tableCell}>
-                  Disponibles para la venta
-                </TableCell>
-                <TableCell align="center" className={styles.tableCell}>
-                  Encargados
-                </TableCell>
-                <TableCell align="center" className={styles.tableCell}>
-                  Defectuosos
-                </TableCell>
-                <TableCell className={styles.tableCell}></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {productList.map((prod, i) => {
-                return (
-                  <TableRow key={i}>
-                    <TableCell align="center">{prod.product.id}</TableCell>
-                    <TableCell>{prod.product.name}</TableCell>
-                    <TableCell align="center">{prod.availableToSellQuantity}</TableCell>
-                    <TableCell align="center">{prod.inChargeQuantity}</TableCell>
-                    <TableCell align="center">{prod.brokenQuantity}</TableCell>
-                    <TableCell align="center">
-                      <Button className={`${styles.button}`} onClick={prod => showModal(prod)}>
-                        Modificar
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </Paper>
+        <>
+          <Paper>
+            <Table>
+              <TableHead>
+                <TableRow className={styles.tableHeader}>
+                  <TableCell align="center" className={styles.tableCell}>
+                    Código
+                  </TableCell>
+                  <TableCell className={styles.tableCell}>Producto</TableCell>
+                  <TableCell align="center" className={styles.tableCell}>
+                    Disponibles para la venta
+                  </TableCell>
+                  <TableCell align="center" className={styles.tableCell}>
+                    Encargados
+                  </TableCell>
+                  <TableCell align="center" className={styles.tableCell}>
+                    Defectuosos
+                  </TableCell>
+                  <TableCell className={styles.tableCell}></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {productList.map((prod, i) => {
+                  return (
+                    <TableRow key={i}>
+                      <TableCell align="center">{prod.product.id}</TableCell>
+                      <TableCell>{prod.product.name}</TableCell>
+                      <TableCell align="center">{prod.availableToSellQuantity}</TableCell>
+                      <TableCell align="center">{prod.inChargeQuantity}</TableCell>
+                      <TableCell align="center">{prod.brokenQuantity}</TableCell>
+                      <TableCell align="center">
+                        <Button className={`${styles.button}`} onClick={() => handleClick(prod)}>
+                          Modificar
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Paper>
+          <ModalStock styles={styles} show={showModal} product={actualProduct} onClose={() => handleClose()} />
+        </>
       ) : (
         <div>
           <Alert color="warning">
