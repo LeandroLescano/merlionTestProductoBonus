@@ -90,6 +90,9 @@ function ModalStock(props) {
   const handleClose = () => {
     setOpen(false);
     props.onClose();
+    setErrorMessageTo('');
+    setErrorMessageFrom('');
+    setErrorMessageQuantity('');
   };
 
   const handleUpdate = () => {
