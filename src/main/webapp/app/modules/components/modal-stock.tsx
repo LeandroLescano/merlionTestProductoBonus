@@ -158,7 +158,7 @@ function ModalStock(props) {
                   Defectuosos
                 </Grid>
               </Grid>
-              <Grid justify="center" alignContent="center" container>
+              <Grid style={{ marginTop: '10px' }} justify="center" alignContent="center" container>
                 <Grid item xs={4}>
                   <span className="stock-number">{localProduct.availableToSellQuantity}</span>
                 </Grid>
