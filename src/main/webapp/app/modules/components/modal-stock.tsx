@@ -92,27 +92,31 @@ function ModalStock(props) {
   };
 
   const handleUpdate = () => {
-    let token = '';
-    axios({ url: window.location.href + 'api/authenticate' })
-      .then(response => (token = response.config.headers.Authorization))
-      .catch(error => console.error(error));
-    const apiUrl = window.location.href + 'api/product-buckets';
-    axios({
-      url: apiUrl,
-      method: 'PUT',
-      headers: {
-        accept: '*/*',
-        Authorization: token,
-      },
-      data: localProduct,
-    })
-      .then(() => {
-        props.updateTable(localProduct);
-        handleClose();
+    if (localProduct !== props.product) {
+      let token = '';
+      axios({ url: window.location.href + 'api/authenticate' })
+        .then(response => (token = response.config.headers.Authorization))
+        .catch(error => console.error(error));
+      const apiUrl = window.location.href + 'api/product-buckets';
+      axios({
+        url: apiUrl,
+        method: 'PUT',
+        headers: {
+          accept: '*/*',
+          Authorization: token,
+        },
+        data: localProduct,
       })
-      .catch(error => {
-        console.error(error);
-      });
+        .then(() => {
+          props.updateTable(localProduct);
+          handleClose();
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    } else {
+      handleClose();
+    }
   };
 
   const handleMove = () => {
@@ -121,7 +125,7 @@ function ModalStock(props) {
     let errorMsg = '';
     let errorMsgFrom = '';
     const quantity = parseInt((document.getElementById('quantity-prod') as HTMLInputElement).value, 10);
-    if (stateFrom !== null && stateTo !== null && quantity > 0) {
+    if (stateFrom !== null && stateTo !== null && quantity > 0 && stateFrom.cod !== stateTo.cod) {
       if (quantity <= productUpdate[stateFrom.cod]) {
         switch (stateTo.cod) {
           case 'availableToSellQuantity': {
@@ -167,6 +171,8 @@ function ModalStock(props) {
     if (props.show) {
       setOpen(true);
       setLocalProduct(props.product);
+      setStateFrom(null);
+      setStateTo(null);
     } else {
       setOpen(false);
     }
@@ -186,6 +192,7 @@ function ModalStock(props) {
                   {...defaultProps}
                   id="cmbStates-from"
                   value={stateFrom}
+                  noOptionsText="Sin opciones"
                   getOptionSelected={(option, value) => value.title === option.title}
                   onChange={(event: any, newValue: StateOptionType | null) => {
                     setStateFrom(newValue);
@@ -211,6 +218,7 @@ function ModalStock(props) {
                   {...defaultProps}
                   id="cmbStates-to"
                   value={stateTo}
+                  noOptionsText="Sin opciones"
                   onChange={(event: any, newValue: StateOptionType | null) => {
                     setStateTo(newValue);
                     setErrorMessage('');

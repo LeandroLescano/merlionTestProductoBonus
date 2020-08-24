@@ -92,7 +92,7 @@ export const Home = (props: IHomeProp) => {
     list[index] = prodUpdate;
     setProductList(list);
     setAlertShow(true);
-    setAlertMsg('Stock del producto ' + prodUpdate.product.name + ' actualizado!');
+    setAlertMsg('Stock del producto ' + prodUpdate.product.name + ' cod. ' + prodUpdate.product.id + ' actualizado!');
   };
 
   return (
