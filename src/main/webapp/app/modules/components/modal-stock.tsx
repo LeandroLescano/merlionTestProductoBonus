@@ -69,6 +69,7 @@ function ModalStock(props) {
   const [stateTo, setStateTo] = useState<StateOptionType | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [errorMessageFrom, setErrorMessageFrom] = useState<string>('');
+  const [errorMessageQuantity, setErrorMessageQuantity] = useState<string>('');
 
   const states = [
     { title: 'Disponible para la venta', cod: 'availableToSellQuantity' },
@@ -121,49 +122,57 @@ function ModalStock(props) {
 
   const handleMove = () => {
     const productUpdate = { ...localProduct };
+    setErrorMessage('');
+    setErrorMessageFrom('');
+    setErrorMessageQuantity('');
     let error = false;
     let errorMsg = '';
     let errorMsgFrom = '';
     const quantity = parseInt((document.getElementById('quantity-prod') as HTMLInputElement).value, 10);
-    if (stateFrom !== null && stateTo !== null && quantity > 0 && stateFrom.cod !== stateTo.cod) {
-      if (quantity <= productUpdate[stateFrom.cod]) {
-        switch (stateTo.cod) {
-          case 'availableToSellQuantity': {
-            if (productUpdate[stateTo.cod] + quantity > 10) {
-              errorMsg = 'No puede haber más de 10 productos disponibles para la venta.';
-              error = true;
+    if (stateFrom !== null && stateTo !== null && quantity > 0) {
+      if (stateFrom.cod !== stateTo.cod) {
+        if (quantity <= productUpdate[stateFrom.cod]) {
+          switch (stateTo.cod) {
+            case 'availableToSellQuantity': {
+              if (productUpdate[stateTo.cod] + quantity > 10) {
+                errorMsg = 'No puede haber más de 10 productos disponibles para la venta.';
+                error = true;
+              }
+              break;
             }
-            break;
-          }
-          case 'inChargeQuantity': {
-            if (productUpdate[stateTo.cod] + quantity > 3) {
-              errorMsg = 'No puede haber más de 3 productos encargados.';
-              error = true;
+            case 'inChargeQuantity': {
+              if (productUpdate[stateTo.cod] + quantity > 3) {
+                errorMsg = 'No puede haber más de 3 productos encargados.';
+                error = true;
+              }
+              break;
             }
-            break;
-          }
-          default: {
-            if (productUpdate[stateTo.cod] + quantity > 2) {
-              errorMsg = 'No puede haber más de 2 productos defectuosos.';
-              error = true;
+            default: {
+              if (productUpdate[stateTo.cod] + quantity > 2) {
+                errorMsg = 'No puede haber más de 2 productos defectuosos.';
+                error = true;
+              }
+              break;
             }
-            break;
           }
+        } else {
+          errorMsgFrom = 'No hay suficientes productos para mover.';
+          error = true;
         }
-      } else {
-        errorMsgFrom = 'No hay suficientes productos para mover.';
-        error = true;
+        if (!error) {
+          productUpdate[stateFrom.cod] -= quantity;
+          productUpdate[stateTo.cod] += quantity;
+          setLocalProduct(productUpdate);
+        } else {
+          setErrorMessageFrom(errorMsgFrom);
+          setErrorMessage(errorMsg);
+        }
+      } else if (stateFrom.cod === stateTo.cod) {
+        setErrorMessageFrom('Ambos estados son iguales.');
+        setErrorMessage('Ambos estados son iguales.');
       }
-      if (!error) {
-        productUpdate[stateFrom.cod] -= quantity;
-        productUpdate[stateTo.cod] += quantity;
-        setLocalProduct(productUpdate);
-        setErrorMessage('');
-        setErrorMessageFrom('');
-      } else {
-        setErrorMessageFrom(errorMsgFrom);
-        setErrorMessage(errorMsg);
-      }
+    } else if (quantity <= 0) {
+      setErrorMessageQuantity('Debe ingresar una cantidad válida.');
     }
   };
 
@@ -211,7 +220,14 @@ function ModalStock(props) {
                 />
               </Grid>
               <Grid style={{ textAlignLast: 'center' }} item xs={4}>
-                <TextField label="Cantidad" type="number" id="quantity-prod" />
+                <TextField
+                  error={errorMessageQuantity !== '' ? true : false}
+                  style={errorMessageQuantity !== '' ? { height: '48px' } : {}}
+                  helperText={errorMessageQuantity}
+                  label="Cantidad"
+                  type="number"
+                  id="quantity-prod"
+                />
               </Grid>
               <Grid item xs={4}>
                 <Autocomplete
@@ -238,7 +254,7 @@ function ModalStock(props) {
               </Grid>
             </Grid>
             <Grid container spacing={4}>
-              <Grid style={{ textAlign: 'center' }} item xs={12}>
+              <Grid style={{ textAlign: 'center', marginTop: '10px' }} item xs={12}>
                 <Button className={props.styles.button} onClick={() => handleMove()}>
                   Mover
                 </Button>
