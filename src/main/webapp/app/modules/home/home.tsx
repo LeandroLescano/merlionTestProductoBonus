@@ -31,6 +31,7 @@ export const Home = (props: IHomeProp) => {
   const [alertMsg, setAlertMsg] = useState<string>('');
 
   useEffect(() => {
+    //  Get product list from db
     let mounted = true;
     let token = '';
     axios({ url: window.location.href + 'api/authenticate' })

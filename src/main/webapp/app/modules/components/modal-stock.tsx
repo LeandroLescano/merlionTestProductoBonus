@@ -67,7 +67,7 @@ function ModalStock(props) {
   const [localProduct, setLocalProduct] = useState(undefined);
   const [stateFrom, setStateFrom] = useState<StateOptionType | null>(null);
   const [stateTo, setStateTo] = useState<StateOptionType | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [errorMessageTo, setErrorMessageTo] = useState<string>('');
   const [errorMessageFrom, setErrorMessageFrom] = useState<string>('');
   const [errorMessageQuantity, setErrorMessageQuantity] = useState<string>('');
 
@@ -93,6 +93,7 @@ function ModalStock(props) {
   };
 
   const handleUpdate = () => {
+    //  Update product stock in db.
     if (localProduct !== props.product) {
       let token = '';
       axios({ url: window.location.href + 'api/authenticate' })
@@ -109,8 +110,8 @@ function ModalStock(props) {
         data: localProduct,
       })
         .then(() => {
-          props.updateTable(localProduct);
           handleClose();
+          props.updateTable(localProduct);
         })
         .catch(error => {
           console.error(error);
@@ -121,8 +122,9 @@ function ModalStock(props) {
   };
 
   const handleMove = () => {
+    //  Move stock in local product.
     const productUpdate = { ...localProduct };
-    setErrorMessage('');
+    setErrorMessageTo('');
     setErrorMessageFrom('');
     setErrorMessageQuantity('');
     let error = false;
@@ -165,14 +167,22 @@ function ModalStock(props) {
           setLocalProduct(productUpdate);
         } else {
           setErrorMessageFrom(errorMsgFrom);
-          setErrorMessage(errorMsg);
+          setErrorMessageTo(errorMsg);
         }
       } else if (stateFrom.cod === stateTo.cod) {
         setErrorMessageFrom('Ambos estados son iguales.');
-        setErrorMessage('Ambos estados son iguales.');
+        setErrorMessageTo('Ambos estados son iguales.');
       }
-    } else if (quantity <= 0) {
-      setErrorMessageQuantity('Debe ingresar una cantidad válida.');
+    } else {
+      if (quantity < 0 || isNaN(quantity)) {
+        setErrorMessageQuantity('Debe ingresar una cantidad válida.');
+      }
+      if (stateFrom === null) {
+        setErrorMessageFrom('Debe elegir un estado.');
+      }
+      if (stateTo === null) {
+        setErrorMessageTo('Debe elegir un estado.');
+      }
     }
   };
 
@@ -237,15 +247,15 @@ function ModalStock(props) {
                   noOptionsText="Sin opciones"
                   onChange={(event: any, newValue: StateOptionType | null) => {
                     setStateTo(newValue);
-                    setErrorMessage('');
+                    setErrorMessageTo('');
                   }}
                   getOptionSelected={(option, value) => value.title === option.title}
                   renderInput={params => (
                     <TextField
                       {...params}
-                      error={errorMessage !== '' ? true : false}
-                      style={errorMessage !== '' ? { height: '48px' } : {}}
-                      helperText={errorMessage}
+                      error={errorMessageTo !== '' ? true : false}
+                      style={errorMessageTo !== '' ? { height: '48px' } : {}}
+                      helperText={errorMessageTo}
                       label="Hacia"
                       variant="standard"
                     />
