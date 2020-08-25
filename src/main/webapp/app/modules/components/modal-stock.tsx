@@ -134,6 +134,8 @@ function ModalStock(props) {
     let errorMsg = '';
     let errorMsgFrom = '';
     const quantity = parseInt((document.getElementById('quantity-prod') as HTMLInputElement).value, 10);
+
+    // Check input fields
     if (stateFrom !== null && stateTo !== null && quantity > 0) {
       if (stateFrom.cod !== stateTo.cod) {
         if (quantity <= productUpdate[stateFrom.cod]) {
@@ -165,6 +167,7 @@ function ModalStock(props) {
           error = true;
         }
         if (!error) {
+          //  Make stock movement
           productUpdate[stateFrom.cod] -= quantity;
           productUpdate[stateTo.cod] += quantity;
           setLocalProduct(productUpdate);
@@ -269,7 +272,7 @@ function ModalStock(props) {
             <Grid container spacing={4}>
               <Grid style={{ textAlign: 'center', marginTop: '10px' }} item xs={12}>
                 <Button className={props.styles.button} onClick={() => handleMove()}>
-                  Mover
+                  Mover stock
                 </Button>
               </Grid>
             </Grid>
